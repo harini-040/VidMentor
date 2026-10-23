@@ -1,5 +1,5 @@
 import faiss
-from embeddings import embedder
+from embeddings import get_embedder
 from chunking import chunk_transcript
 from transcript import get_transcript
 from cache import video_cache, save_to_disk, load_from_disk, get_cache_key
@@ -11,7 +11,13 @@ def build_index_for_video(video_id):
     chunks = chunk_transcript(transcript)
     if not chunks:
         return None, "This video's transcript is empty."
-    embeddings = embedder.encode([c["text"] for c in chunks], convert_to_numpy=True, normalize_embeddings=True)
+        embedder = get_embedder()
+embeddings = embedder.encode(
+    [c["text"] for c in chunks],
+    convert_to_numpy=True,
+    normalize_embeddings=True,
+)
+    
     index = faiss.IndexFlatIP(embeddings.shape[1])
     index.add(embeddings)
     return (chunks, index), None
